@@ -1,0 +1,28 @@
+from Crypto.PublicKey import RSA 
+from Crypto.Cipher import AES  
+from Crypto import Random
+from Crypto.Hash import SHA256 
+random_generator = Random.new().read
+#THIS IS THE CLIENT
+import socket
+import pickle
+
+def main():
+    host = '127.0.0.1'
+    port = 5000
+
+    s = socket.socket()
+    s.connect((host,port))
+
+    message = input("-> ") 
+    while message != 'q':
+        data = c.recv(1024)
+		#message should be encoded to bytes before sending out
+        s.send(message.encode()) 
+        data = s.recv(1024)
+        print ('Received from server: ',data.decode())
+        message = input("-> ")  
+    s.close()
+
+if __name__ == '__main__':
+    main()
