@@ -1,0 +1,45 @@
+from Crypto.PublicKey import RSA #imports the RSA funtions asymmetric algorithm , 2 keys, private and public
+from Crypto.Cipher import AES  #imports the AES functions
+from Crypto import Random  #imports random
+from Crypto.Hash import SHA256 #Secure Hash Algorithm 
+random_generator = Random.new().read #defines the random generator
+
+
+print ("Step 1 Client says hello.")
+a = input('Type any key and press Enter to continue: ')
+
+print ("Step 2 Server says hello and sends the public key certificate.")
+a = input('Type any key and press Enter to continue:')
+# Generate a public key using RSA
+key = RSA.generate(1024,random_generator) #Key is generated
+public_key = key.publickey()
+
+print ("Step 3 Client verifies the public key.")
+a = input('Type any key and press Enter to continue: ')
+
+print ("Step 4 Client sends the information to Server")
+#Generate a Random 16 byte information and save it to secret_piece
+#Encrypt the secret_piece using the public key
+#Generate a hash value based on the secret piece
+#Save both above information into a list, L
+secret_piece = Random.get_random_bytes(16)
+enc_data = public_key.encrypt(secret_piece,12)
+hash_value = SHA256.new(secret_piece).digest() #digest returns the data in byte format
+L = [enc_data,hash_value]
+
+print ("Step 5 Server decrypts the encrypted data using its private key, computes a hash value and compares it with the sent piece.")
+#decrypted the secret piece
+decrypted_info = key.decrypt(L[0])
+#compute the hash and match it with the one sent from the client
+match_or_not = SHA256.new(decrypted_info).digest() == L[1]
+
+if match_or_not:
+    print ("Step 6 Server sends further information encrypted using AES based on the secret piece (key to the AES)")
+    info_to_be_encrypted = "It seems all secure. Let's talk!"
+    aes = AES.new(decrypted_info,AES.MODE_ECB)
+    cipher_text = aes.encrypt(info_to_be_encrypted)
+    print ("The real message is: ", info_to_be_encrypted) 
+    print ("The encrypted message is: ",cipher_text)
+    print ("The decrypted message is: ",aes.decrypt(cipher_text).decode())
+else:
+    print ("SSL is no longer secure.")
